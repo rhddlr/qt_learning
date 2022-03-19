@@ -5,3 +5,4 @@
 *.stash
 build/
 *.user
+*-build*
