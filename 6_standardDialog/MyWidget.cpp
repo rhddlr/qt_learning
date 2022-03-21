@@ -238,7 +238,7 @@ void MyWidget::setSaveFileName()
     QString filename = QFileDialog::getSaveFileName(this,
                                               tr("QFileDialog::getSaveFileName"),
                                               saveFileNameLabel->text(),
-                                              tr("All Files(*);Text Files(*.txt)"),
+                                              tr("All Files(*);;Text Files(*.txt)"),
                                               &selectedFilter,
                                               options);
     if(!filename.isEmpty())
