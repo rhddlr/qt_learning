@@ -5,7 +5,7 @@
 #include <QGridLayout>
 #include<QLabel>
 #include<QPushButton>
-
+#include<QErrorMessage>
 #include "DialogOptionWidget.h"
 
 class MyWidget : public QWidget
@@ -26,6 +26,14 @@ private slots:
     void setOpenFileName();
     void setOpenFileNames();
     void setSaveFileName();
+
+    void setFont();
+
+    void criticalMessage();
+    void informationMessage();
+    void questionMessage();
+    void warningMessage();
+    void errorMessage();
 private:
     QWidget *page;
     QGridLayout *m_layout;
@@ -50,6 +58,8 @@ private:
     QLabel *errorLabel;
 
     QPushButton *colorButton;
+
+    QErrorMessage *errorMessageDialog;
 
     DialogOptionWidget *fileDialogOptionWidget;
     DialogOptionWidget *colorDialogOptionWidget;

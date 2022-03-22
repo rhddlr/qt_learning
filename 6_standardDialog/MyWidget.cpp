@@ -5,13 +5,14 @@
 #include<QToolBox>
 #include<QInputDialog>
 #include<QFileDialog>
+#include<QFontDialog>
 
 
 MyWidget::MyWidget(QWidget *parent)
     :QWidget(parent)
 {
-    this->setMinimumSize(800,600);
-    QVBoxLayout *verticalLayout;
+    this->setMinimumSize(800,600);//窗口初始大小
+    QVBoxLayout *verticalLayout;//垂直布局
     if (this->isMinimized() || this->isFullScreen()) {
         QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
         QGroupBox *groupBox = new QGroupBox(this->windowTitle(), this);
@@ -23,12 +24,13 @@ MyWidget::MyWidget(QWidget *parent)
 
     QToolBox* toolbox = new QToolBox;
     verticalLayout->addWidget(toolbox);
+    errorMessageDialog = new QErrorMessage(this);
 
     // dialog属性
     const QString doNotUserNativeDialog = tr("Do not user native dialog");
     int frameStyle = QFrame::Sunken | QFrame::Panel;
 
-    // 下面三个是QInputDialog
+    // QInputDialog
     itemLabel = new QLabel;
     itemLabel->setFrameStyle(frameStyle);
     QPushButton *itemButton = new QPushButton(tr("QInputDialog::getIte&m()"));
@@ -72,13 +74,14 @@ MyWidget::MyWidget(QWidget *parent)
     m_layout = new QGridLayout(page);
     m_layout->setColumnStretch(1,1);
     m_layout->addWidget(this->colorButton,0,0);
-    m_layout->addWidget(this->colorLabel,0,1);
+    m_layout->addWidget(this->colorLabel,3,1);
     colorDialogOptionWidget = new DialogOptionWidget;
     colorDialogOptionWidget->addCheckBox(doNotUserNativeDialog,QColorDialog::DontUseNativeDialog);
     colorDialogOptionWidget->addCheckBox(tr("show alpha channel"),QColorDialog::ShowAlphaChannel);
     colorDialogOptionWidget->addCheckBox(tr("no buttons"),QColorDialog::NoButtons);
-    m_layout->addItem(new QSpacerItem(0,0,QSizePolicy::Ignored,QSizePolicy::MinimumExpanding),1,0);
-    m_layout->addWidget(colorDialogOptionWidget,1,0,2,2);
+    m_layout->addWidget(colorDialogOptionWidget,4,0,1,2);
+    m_layout->addItem(new QSpacerItem(0,0,QSizePolicy::Ignored,QSizePolicy::MinimumExpanding),5,0);
+
     toolbox->addItem(page,tr("Color Dialog"));
 
     //QFileDialog
@@ -131,9 +134,75 @@ MyWidget::MyWidget(QWidget *parent)
     fileDialogOptionWidget->addCheckBox(tr("Hide name filter details"), QFileDialog::HideNameFilterDetails);
     fileDialogOptionWidget->addCheckBox(tr("Do not use custom directory icons (Windows)"),
                                          QFileDialog::DontUseCustomDirectoryIcons);
-    m_layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding), 4, 0);
-    m_layout->addWidget(fileDialogOptionWidget, 5, 0, 1 ,2);
+    m_layout->addWidget(fileDialogOptionWidget, 4, 0, 1 ,2);
+    m_layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding), 5, 0);
+
     toolbox->addItem(page, tr("File Dialogs"));
+
+    //QFontDialog
+    fontLabel = new QLabel;
+    fontLabel->setFrameStyle(frameStyle);
+    QPushButton *fontButton = new QPushButton(tr("QFontDialog::getFont()"));
+    connect(fontButton,&QAbstractButton::clicked,this,&MyWidget::setFont);
+
+    page = new QWidget;
+    m_layout = new QGridLayout(page);
+    m_layout->setColumnStretch(1,1);
+    m_layout->addWidget(fontLabel,0,1);
+    m_layout->addWidget(fontButton,0,0);
+    fontDialogOptionWidget = new DialogOptionWidget;
+    fontDialogOptionWidget->addCheckBox(doNotUserNativeDialog, QFontDialog::DontUseNativeDialog);
+    fontDialogOptionWidget->addCheckBox(tr("Show scalable fonts"), QFontDialog::ScalableFonts);
+    fontDialogOptionWidget->addCheckBox(tr("Show non scalable fonts"), QFontDialog::NonScalableFonts);
+    fontDialogOptionWidget->addCheckBox(tr("Show monospaced fonts"), QFontDialog::MonospacedFonts);
+    fontDialogOptionWidget->addCheckBox(tr("Show proportional fonts"), QFontDialog::ProportionalFonts);
+    fontDialogOptionWidget->addCheckBox(tr("No buttons") , QFontDialog::NoButtons);
+    m_layout->addWidget(fontDialogOptionWidget,2,0,1,2);
+    m_layout->addItem(new QSpacerItem(0,0,QSizePolicy::Ignored,QSizePolicy::MinimumExpanding),3,0);
+    toolbox->addItem(page,tr("Font Dialig"));
+
+    //QMessageBox
+    criticalLabel = new QLabel;
+    criticalLabel->setFrameStyle(frameStyle);
+    QPushButton *criticalButton = new QPushButton(tr("QMessageBox::critical()"));
+    connect(criticalButton, &QAbstractButton::clicked, this, &MyWidget::criticalMessage);
+
+    informationLabel = new QLabel;
+    informationLabel->setFrameStyle(frameStyle);
+    QPushButton *informationButton = new QPushButton(tr("QMessageBox::information()"));
+    connect(informationButton, &QAbstractButton::clicked,
+          this, &MyWidget::informationMessage);
+
+    questionLabel = new QLabel;
+    questionLabel->setFrameStyle(frameStyle);
+    QPushButton *questionButton = new QPushButton(tr("QMessageBox::question()"));
+    connect(questionButton, &QAbstractButton::clicked, this, &MyWidget::questionMessage);
+
+    warningLabel = new QLabel;
+    warningLabel->setFrameStyle(frameStyle);
+    QPushButton *warningButton = new QPushButton(tr("QMessageBox::warning()"));
+    connect(warningButton, &QAbstractButton::clicked, this, &MyWidget::warningMessage);
+
+    errorLabel = new QLabel;
+    errorLabel->setFrameStyle(frameStyle);
+    QPushButton *errorButton = new QPushButton(tr("QMessageBox::showMessage()"));
+    connect(errorButton, &QAbstractButton::clicked, this, &MyWidget::errorMessage);
+
+    page = new QWidget;
+    m_layout = new QGridLayout(page);
+    m_layout->setColumnStretch(1,1);
+    m_layout->addWidget(criticalButton,0,0);
+    m_layout->addWidget(criticalLabel,0,1);
+    m_layout->addWidget(informationButton,1,0);
+    m_layout->addWidget(informationLabel,1,1);
+    m_layout->addWidget(warningButton,2,0);
+    m_layout->addWidget(warningLabel,2,1);
+    m_layout->addWidget(errorButton,3,0);
+    m_layout->addWidget(errorLabel,3,1);
+    m_layout->addWidget(questionButton,4,0);
+    m_layout->addWidget(questionLabel,4,1);
+    m_layout->addItem(new QSpacerItem(0,0,QSizePolicy::Ignored,QSizePolicy::MinimumExpanding),5,0);
+    toolbox->addItem(page,tr("QMessage Boxs"));
 }
 
 MyWidget::~MyWidget()
@@ -243,4 +312,96 @@ void MyWidget::setSaveFileName()
                                               options);
     if(!filename.isEmpty())
         saveFileNameLabel->setText(filename);
+}
+
+void MyWidget::setFont()
+{
+    const QFontDialog::FontDialogOptions options = QFlag(fontDialogOptionWidget->value());
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok,QFont(fontLabel->text()),this,"Select font",options);
+    if(ok)
+    {
+        fontLabel->setText(font.key());
+        fontLabel->setFont(font);
+    }
+}
+
+#include<QMessageBox>
+#define MESSAGE \
+    MyWidget::tr("<p>Message Boxs have caption, a text," \
+    "and any number of buttons, each with standard or custon texts."\
+    "<p>Click a button to close the messagebox. pressing the Esc button "\
+    "will activate the detected escape button (if any).")
+
+#define MESSAGE_DETAILS \
+    MyWidget::tr("If a message box has detailed text, the user can reveal it "\
+    "by pressing the Show Details... button.")
+
+void MyWidget::criticalMessage()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::critical(this,tr("QMessageBox::critical()"),
+                                  MESSAGE,
+                                  QMessageBox::Abort|QMessageBox::Retry|QMessageBox::Ignore);
+    if(reply == QMessageBox::Abort)
+        criticalLabel->setText(tr("Abort"));
+    else if (reply == QMessageBox::Retry)
+        criticalLabel->setText(tr("Retry"));
+    else
+        criticalLabel->setText(tr("Ignore"));
+}
+
+void MyWidget::informationMessage()
+{
+    QMessageBox information(QMessageBox::Information,tr("QMessageBox::information()")
+                            , MESSAGE,QMessageBox::StandardButton::Ok,this);
+    information.addButton(tr("jump to step"),QMessageBox::ButtonRole::AcceptRole);
+    int reply = information.exec();
+    if (reply == QMessageBox::Ok)
+        informationLabel->setText(tr("OK"));
+    else if(reply == QMessageBox::AcceptRole)
+        informationLabel->setText(tr("jump to step"));
+    else
+        informationLabel->setText(tr("Escape"));
+}
+
+void MyWidget::questionMessage()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("QMessageBox::question()"),
+                                  MESSAGE,
+                                  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    if (reply == QMessageBox::Yes)
+      questionLabel->setText(tr("Yes"));
+    else if (reply == QMessageBox::No)
+      questionLabel->setText(tr("No"));
+    else
+      questionLabel->setText(tr("Cancel"));
+}
+
+void MyWidget::warningMessage()
+{
+    QMessageBox msgBox(QMessageBox::Warning, tr("QMessageBox::warning()"),
+                             MESSAGE, nullptr, this);
+
+    msgBox.setDetailedText(MESSAGE_DETAILS);
+    msgBox.addButton(tr("Save &Again"), QMessageBox::AcceptRole);
+    msgBox.addButton(tr("&Continue"), QMessageBox::RejectRole);
+    if (msgBox.exec() == QMessageBox::AcceptRole)
+      warningLabel->setText(tr("Save Again"));
+    else
+      warningLabel->setText(tr("Continue"));
+}
+
+void MyWidget::errorMessage()
+{
+    errorMessageDialog->showMessage(
+    tr("This dialog shows and remembers error messages. "
+     "If the checkbox is checked (as it is by default), "
+     "the shown message will be shown again, "
+     "but if the user unchecks the box the message "
+     "will not appear again if QErrorMessage::showMessage() "
+     "is called with the same message."),tr("error"));
+    errorLabel->setText(tr("If the box is unchecked, the message "
+                 "won't appear again."));
 }
