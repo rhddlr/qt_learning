@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../res/angry.png</file>
+        <file>../res/bg.jpeg</file>
+        <file>../res/flushed.png</file>
+        <file>../res/frown.png</file>
+        <file>../res/grimace.png</file>
+        <file>../res/grin-beam-sweat.png</file>
+        <file>../res/laugh-squint.png</file>
+        <file>../res/meh-blank.png</file>
+    </qresource>
+</RCC>
