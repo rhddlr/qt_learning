@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>1.png</file>
+        <file>失望.gif</file>
+    </qresource>
+</RCC>
