@@ -8,6 +8,7 @@
 #include <QString>
 #include <QVBoxLayout>
 #include <QVariant>
+#include <QDebug>
 
 ClassWizard::ClassWizard(QWizard *parent) : QWizard(parent)
 {
@@ -49,7 +50,7 @@ void ClassWizard::accept()
     #define
     */
     if(field("protect").toBool()){
-        block +="#ifdef "+macroName + '\n';
+        block +="#ifndef "+macroName + '\n';
         block +="#define " + macroName +'\n';
         block+='\n';
     }
@@ -111,8 +112,7 @@ void ClassWizard::accept()
     QFile headerFile(outputDir+'/'+header);
     if(!headerFile.open(QFile::WriteOnly | QFile::Text)){
         QMessageBox::warning(this,QObject::tr("Simple Wizard"),QObject::tr("Cannot write file %1:\n%2")
-                             .arg(headerFile.fileName())
-                             .arg(headerFile.errorString()));
+                             .arg(headerFile.fileName(),headerFile.errorString()));
         return;
     }
     headerFile.write(block);//write header file
@@ -156,7 +156,7 @@ void ClassWizard::accept()
             if(!baseClass.isEmpty())
                 block += "    " +baseClass + "::operator=(other);\n";
             block +="    // missing code\n";
-            block +="    return *this";
+            block +="    return *this;";
             block +="}\n";
         }
     }
@@ -165,8 +165,7 @@ void ClassWizard::accept()
     if(!implementationFile.open(QFile::WriteOnly|QFile::Text)){
         QMessageBox::warning(this,tr("Simple Wizard"),
                              QObject::tr("Cannot write file %1:\n%2")
-                             .arg(implementationFile.fileName())
-                             .arg(implementationFile.errorString()));
+                             .arg(implementationFile.fileName(),implementationFile.errorString()));
         return;
     }
     implementationFile.write(block);
@@ -233,6 +232,8 @@ ClassInfoPage::ClassInfoPage(QWidget *parent):QWizardPage(parent)
     groupBoxLayout->addWidget(qwidget_RadioButton);
     groupBoxLayout->addWidget(default_RadioButton);
     groupBoxLayout->addWidget(copyCtorCheckBox);
+    groupBoxLayout->setSpacing(10);
+    groupBox->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
     groupBox->setLayout(groupBoxLayout);
 
     QGridLayout *layout = new QGridLayout;
@@ -241,9 +242,9 @@ ClassInfoPage::ClassInfoPage(QWidget *parent):QWizardPage(parent)
     layout->addWidget(baseClassLabel,1,0);
     layout->addWidget(baseClassLineEdit,1,1);
     layout->addWidget(qobjectMacroCheckBox,2,0,1,2);
-    layout->addWidget(groupBox,3,0,2,2);
-
+    layout->addWidget(groupBox,3,0,1,2);
     setLayout(layout);
+    //qDebug()<<this->layout(); // 0x0
 }
 
 CodeStylePage::CodeStylePage(QWidget *parent):QWizardPage (parent)
@@ -308,7 +309,7 @@ void CodeStylePage::initializePage()
     baseIncludeLabel->setEnabled(!baseClass.isEmpty());
     baseIncludeLineEdit->setEnabled(!baseClass.isEmpty());
 
-    QRegularExpression rx("Q[A-Z].*");
+    static QRegularExpression rx("Q[A-Z].*");
     if(baseClass.isEmpty())
     {
         baseIncludeLineEdit->clear();
