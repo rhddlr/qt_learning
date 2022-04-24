@@ -1,9 +1,11 @@
 #include "Widget.h"
 
 #include <QComboBox>
+#include <QDateTimeEdit>
 #include <QDebug>
 #include <QFont>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMovie>
 #include <QStackedWidget>
 #include <QString>
@@ -11,6 +13,7 @@
 #include <QTextCodec>
 #include <QToolBox>
 #include <QVBoxLayout>
+#include <QCoreApplication>
 
 namespace {
     void createTextLabel(QString text, QVBoxLayout* layout) {
@@ -93,12 +96,27 @@ namespace {
         return sw;
     }
 
-    QToolBox* createToolBox(const QStringList& textList, QWidget* parent) {
+    QToolBox* createToolBox(QWidget* parent) {
         auto* const tb = new QToolBox(parent);
-        foreach (const auto& text, textList) {
-            QString elideText = parent->fontMetrics().elidedText(text, Qt::ElideRight, 150);
-            tb->addItem(new QLabel(text, parent), elideText);
-        }
+        auto* const lineEdit = new QLineEdit(parent);
+        QString inputMast(">AA!-999-9999-9999_aa\#_HH;*");
+        parent->connect(lineEdit, &QLineEdit::returnPressed, parent, [lineEdit]() {
+            lineEdit->setFocus();
+            qDebug() << lineEdit->text();
+            qDebug() << lineEdit->displayText();
+        });
+        lineEdit->setInputMask(inputMast);
+        tb->addItem(lineEdit, QStringLiteral("Mask:") + inputMast);
+
+        auto* const timeEdit = new QDateTimeEdit(parent);
+        timeEdit->setDateTime(QDateTime::currentDateTime());
+        timeEdit->setDisplayFormat(QStringLiteral("yyyy-MM-dd_ddd_HH:mm:ss"));
+        tb->addItem(timeEdit, QCoreApplication::tr("QDateTimeEdit"));
+
+        QString text("title");
+        QString elideText = parent->fontMetrics().elidedText(text, Qt::ElideRight, 150);
+        tb->addItem(new QLabel(text, parent), elideText);
+
         return tb;
     }
 }  // namespace
@@ -106,8 +124,8 @@ namespace {
 Widget::Widget(QWidget* parent) : QWidget(parent) {
     auto* const verticalLayout = new QVBoxLayout;
     createStackedWidget(verticalLayout, this);
-    QStringList sList = {tr("friend"), tr("closer"), tr("blackList")};
-    verticalLayout->addWidget(createToolBox(sList, this));
+
+    verticalLayout->addWidget(createToolBox(this));
     setLayout(verticalLayout);
 }
 
