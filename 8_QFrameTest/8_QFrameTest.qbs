@@ -10,6 +10,7 @@ QtApplication {
     ]
 
     files: [
+        "Form.ui",
         "icons.qrc",
         "main.cpp",
         "Widget.cpp",

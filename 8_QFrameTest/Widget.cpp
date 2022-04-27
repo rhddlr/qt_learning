@@ -14,6 +14,9 @@
 #include <QToolBox>
 #include <QVBoxLayout>
 #include <QCoreApplication>
+#include <QScrollBar>
+#include <QSpinBox>
+#include <QDial>
 
 namespace {
     void createTextLabel(QString text, QVBoxLayout* layout) {
@@ -96,11 +99,11 @@ namespace {
         return sw;
     }
 
-    QToolBox* createToolBox(QWidget* parent) {
-        auto* const tb = new QToolBox(parent);
-        auto* const lineEdit = new QLineEdit(parent);
+    void createToolBox(QVBoxLayout* layout) {
+        auto* const tb = new QToolBox;
+        auto* const lineEdit = new QLineEdit;
         QString inputMast(">AA!-999-9999-9999_aa\#_HH;*");
-        parent->connect(lineEdit, &QLineEdit::returnPressed, parent, [lineEdit]() {
+        QWidget::connect(lineEdit, &QLineEdit::returnPressed, [lineEdit]() {
             lineEdit->setFocus();
             qDebug() << lineEdit->text();
             qDebug() << lineEdit->displayText();
@@ -108,24 +111,52 @@ namespace {
         lineEdit->setInputMask(inputMast);
         tb->addItem(lineEdit, QStringLiteral("Mask:") + inputMast);
 
-        auto* const timeEdit = new QDateTimeEdit(parent);
+        auto* const timeEdit = new QDateTimeEdit;
         timeEdit->setDateTime(QDateTime::currentDateTime());
         timeEdit->setDisplayFormat(QStringLiteral("yyyy-MM-dd_ddd_HH:mm:ss"));
         tb->addItem(timeEdit, QCoreApplication::tr("QDateTimeEdit"));
 
         QString text("title");
-        QString elideText = parent->fontMetrics().elidedText(text, Qt::ElideRight, 150);
-        tb->addItem(new QLabel(text, parent), elideText);
+        QString elideText = lineEdit->fontMetrics().elidedText(text, Qt::ElideRight, 150);
+        tb->addItem(new QLabel(text), elideText);
+        layout->addWidget(tb);
+    }
+    void createSlider(QVBoxLayout* layout) {
+        auto* const hLayout = new QHBoxLayout;
+        auto* const scrollbar = new QScrollBar;
+        scrollbar->setSingleStep(2);
+        scrollbar->setOrientation(Qt::Orientation::Vertical);
+        hLayout->addWidget(scrollbar);
 
-        return tb;
+        auto* const slider_1 = new QSlider;
+        slider_1->setOrientation(Qt::Vertical);
+        hLayout->addWidget(slider_1);
+
+        auto* const spinBox = new QSpinBox;
+        hLayout->addWidget(spinBox);
+
+        auto* const dial = new QDial;
+        dial->setNotchesVisible(true);
+        dial->setOrientation(Qt::Vertical);
+        dial->setNotchTarget(1);
+        dial->setWrapping(true);
+        hLayout->addWidget(dial);
+        qDebug() << dial->minimumSizeHint() << "--" << dial->sizeHint();
+
+        QWidget::connect(dial, &QDial::sliderMoved, scrollbar, &QScrollBar::setValue);
+        QWidget::connect(dial, &QDial::sliderMoved, slider_1, &QSlider::setValue);
+        QWidget::connect(dial, &QDial::sliderMoved, spinBox, &QSpinBox::setValue);
+
+        layout->addLayout(hLayout);
     }
 }  // namespace
 
 Widget::Widget(QWidget* parent) : QWidget(parent) {
     auto* const verticalLayout = new QVBoxLayout;
     createStackedWidget(verticalLayout, this);
+    createToolBox(verticalLayout);
+    createSlider(verticalLayout);
 
-    verticalLayout->addWidget(createToolBox(this));
     setLayout(verticalLayout);
 }
 
