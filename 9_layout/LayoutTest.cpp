@@ -13,6 +13,8 @@ LayoutTest::LayoutTest(QWidget* parent)
     //    layout->addWidget(ui->fontComboBox, 0, 0, 1, 2);
     //    layout->addWidget(ui->pushButton, 0, 2, 1, 1);
     //    layout->addWidget(ui->textEdit, 1, 0, 1, 3);
+    setMinimumSize(sizeHint());  // ignore minimumsizehint
+    qDebug() << sizeHint();
 }
 
 LayoutTest::~LayoutTest() { delete ui; }
