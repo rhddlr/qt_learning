@@ -15,6 +15,17 @@ LayoutTest::LayoutTest(QWidget* parent)
     //    layout->addWidget(ui->textEdit, 1, 0, 1, 3);
     setMinimumSize(sizeHint());  // ignore minimumsizehint
     qDebug() << sizeHint();
+    auto* const hideBtn = new QPushButton(tr("hide"));
+    hideBtn->setCheckable(true);
+    connect(hideBtn, &QPushButton::toggled, this, [=](bool checked) {
+        ui->fontComboBox->setVisible(checked);
+        if (checked)
+            hideBtn->setText(tr("hide"));
+        else
+            hideBtn->setText(tr("show"));
+    });
+    auto* const layout = qobject_cast<QHBoxLayout*>(ui->horizontalLayout);
+    layout->addWidget(hideBtn, 1);
 }
 
 LayoutTest::~LayoutTest() { delete ui; }
