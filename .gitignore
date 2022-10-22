@@ -7,3 +7,4 @@ build/
 *.user
 *-build*
 9_layout/.gitignore
+test_qt_plug/test_qt_plug.qbs.user.8fc9920
